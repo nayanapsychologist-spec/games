@@ -17,7 +17,7 @@ const imageAi = new GoogleGenAI(GEMINI_API_KEY);
 
 /**
  * Vercel Serverless Function to securely handle API calls to Gemini and Imagen.
- * The client-side code calls this endpoint, keeping the API key secret.
+ * The client-side code calls this endpoint, keeping the API key secret. 
  */
 export default async function handler(request, response) {
   // 1. Get the word from the client's query string (e.g., /api/generate?word=LIGHT)
