@@ -13,14 +13,5 @@
       "src": "/.*",
       "dest": "scramble/index.html"
     }
-  ],
-  "build": {
-    "env": {
-      "VERCEL_BUILD_DIR": "scramble" 
-    },
-    "installCommand": "echo 'Skipping unnecessary npm install'"
-  },
-  "installCommand": "echo 'Skipping unnecessary npm install'",
-  "buildCommand": "echo 'Skipping automatic build commands'",
-  "ignore": "scramble"
+  ]
 }
