@@ -1,9 +1,7 @@
 {
   "build": {
-    "src": "scramble/index.html",
-    "use": "@vercel/static-build",
-    "config": {
-      "distDir": "scramble"
+    "env": {
+      "VERCEL_BUILD_DIR": "scramble" 
     }
   },
   "functions": {
@@ -20,5 +18,9 @@
       "src": "/.*",
       "dest": "scramble/index.html"
     }
-  ]
+  ],
+  "installCommand": "echo 'No dependencies needed for static client'",
+  "config": {
+    "ignore-build-results": ["scramble"]
+  }
 }
