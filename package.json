@@ -1,0 +1,13 @@
+{
+  "name": "games-repository-proxy",
+  "version": "1.0.0",
+  "description": "Proxy for Google APIs.",
+  "main": "api/generate.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "node-fetch": "^3.0.0"
+  },
+  "type": "module"
+}
