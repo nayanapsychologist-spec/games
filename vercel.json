@@ -3,7 +3,7 @@
     "src": "scramble/index.html",
     "use": "@vercel/static-build",
     "config": {
-      "distDir": "word-scramble"
+      "distDir": "scramble"
     }
   },
   "functions": {
