@@ -8,6 +8,5 @@
   },
   "dependencies": {
     "@google/genai": "latest" 
-    // This instructs npm to fetch the latest available version, bypassing version conflicts.
   }
 }
