@@ -75,14 +75,12 @@
 </head>
 <body class="min-h-screen p-4 sm:p-8 flex items-start justify-center">
 
-    <!-- Main Container -->
     <div id="app-container" class="w-full max-w-4xl">
         <header class="text-center mb-8">
             <h1 class="text-5xl font-extrabold color-primary">🧠 Word Scramble Challenge!</h1>
             <p class="text-gray-500 mt-2 text-xl font-medium">Let's learn new words, their meanings, and spelling!</p>
         </header>
 
-        <!-- Configuration/Initial State Card -->
         <div id="config-screen" class="card p-6 md:p-10 mb-8">
             <h2 class="text-3xl font-bold text-gray-800 mb-4">Ready to Start?</h2>
             <p class="text-gray-600 mb-6 text-lg">Type the words you want to practice below. Separate them with commas (like: **cat, dog, happy, science**).</p>
@@ -92,14 +90,12 @@
             </button>
         </div>
 
-        <!-- Game State Card -->
         <div id="game-screen" class="hidden">
             <div class="flex flex-col md:flex-row justify-between items-center mb-6 p-4 rounded-xl bg-sky-100 border-2 border-sky-300">
                 <p class="text-2xl font-bold text-sky-800 mb-2 md:mb-0">Score: <span id="current-score" class="text-4xl ml-2 font-extrabold">0</span></p>
                 <p class="text-xl font-medium text-gray-700">Word <span id="current-word-index" class="font-bold">1</span> of <span id="total-words">0</span></p>
             </div>
 
-            <!-- Word Panel -->
             <div id="word-panel" class="card p-6 md:p-10 text-center">
                 <div id="loading-spinner" class="hidden text-center py-12">
                     <div class="loader-dots mb-4">
@@ -109,12 +105,10 @@
                 </div>
 
                 <div id="game-content" class="hidden">
-                    <!-- Image Area -->
                     <div class="w-full h-48 sm:h-64 mb-6 rounded-xl overflow-hidden shadow-xl border-4 border-gray-100 bg-gray-100 flex items-center justify-center">
                         <img id="word-image" class="w-full h-full object-contain p-2" src="" alt="Image clue for the word" onerror="this.onerror=null; this.src='https://placehold.co/600x400/818CF8/FFFFFF?text=Picture+Clue+Is+Coming...';">
                     </div>
 
-                    <!-- Clue/Definition Area -->
                     <div class="text-left mb-6 p-5 bg-yellow-100 rounded-xl border-l-4 border-amber-500 shadow-md">
                         <p class="text-lg font-extrabold text-amber-700 uppercase mb-1">💡 What does it mean?</p>
                         <p id="word-definition" class="text-xl font-medium text-gray-800"></p>
@@ -122,12 +116,9 @@
                         <p id="word-clue" class="text-lg italic text-gray-700"></p>
                     </div>
 
-                    <!-- Scrambled Word -->
                     <h2 id="scrambled-word-display" class="text-6xl font-extrabold tracking-widest text-gray-800 mb-8 flex justify-center flex-wrap">
-                        <!-- Letters go here -->
-                    </h2>
+                        </h2>
 
-                    <!-- User Input -->
                     <div class="flex flex-col sm:flex-row gap-3 mb-6 items-center">
                         <input type="text" id="word-input" class="flex-grow p-4 border-4 border-sky-400 rounded-xl font-extrabold text-2xl text-center tracking-wider focus:ring-sky-500 focus:border-sky-500 placeholder-gray-400" placeholder="TYPE YOUR GUESS HERE">
                         <button id="submit-button" class="w-full sm:w-auto button-primary bg-sky-500 text-white py-4 px-8 rounded-xl font-extrabold text-xl hover:bg-sky-600 shadow-lg" onclick="App.checkGuess()">
@@ -135,7 +126,6 @@
                         </button>
                     </div>
 
-                    <!-- Hints & Attempts -->
                     <div class="flex justify-center gap-4">
                         <button id="hint-button" class="button-primary bg-emerald-500 text-white py-3 px-6 rounded-xl font-bold hover:bg-emerald-600 disabled:opacity-50 text-lg shadow-md" onclick="App.applyHint()">
                             Need a Hint? (<span id="hints-remaining">3</span> left)
@@ -143,12 +133,10 @@
                     </div>
                 </div>
 
-                <!-- Message Box (Error/Success/Game Over) -->
                 <div id="message-box" class="mt-6 p-4 text-center rounded-xl font-semibold hidden text-xl shadow-inner"></div>
             </div>
         </div>
 
-        <!-- Game Over State -->
         <div id="game-over-screen" class="hidden card p-10 text-center">
             <h2 class="text-5xl font-extrabold text-emerald-600 mb-4">🏆 Fantastic Job! 🏆</h2>
             <p class="text-2xl text-gray-700 mb-8">Your final score is an amazing <span id="final-score" class="text-emerald-700 font-extrabold text-5xl ml-2">0</span> points!</p>
@@ -161,7 +149,6 @@
 
     </div>
 
-    <!-- JavaScript Game Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -179,16 +166,11 @@
             // --- FIREBASE/API CONFIG ---
             db: null,
             auth: null,
-            // --- CRITICAL CHANGES BELOW ---
-        
-            // 1. REMOVE the exposed API Key (it's now secured on Vercel)
-            // apiKey: "AIzaSyAIEokfox_fO7HQn4TQs7ZSrueZCcv_Ye4", 
-        
-            // 2. Set the single PROXY endpoint URL
-            geminiApiUrl: '/api/generate', // <--- NEW PROXY ENDPOINT
-            
-            // 3. Remove the Imagen URL (the proxy handles it)
-            imagenApiUrl: '',
+            // 💡 CRITICAL CHANGE 1: Set the single PROXY endpoint URL
+            geminiApiUrl: '/api/generate', 
+            // 💡 CRITICAL CHANGE 2: Remove the Imagen URL and old API Key
+            imagenApiUrl: '', // No longer needed
+            // apiKey: '...', // Removed for security
             // --- GAME STATE ---
             words: [],          // Array of original words from input
             gameData: [],       // Array of objects holding word data, hints, etc.
@@ -226,9 +208,10 @@
                     try {
                         const response = await fetch(url, options);
                         if (!response.ok) {
-                            throw new Error(`HTTP error! status: ${response.status}`);
+                            throw new Error(`HTTP error! status: ${response.status} - ${response.statusText}`);
                         }
-                        return await response.json();
+                        // The proxy returns a JSON object, so we return the JSON data
+                        return await response.json(); 
                     } catch (error) {
                         console.warn(`Attempt ${attempt + 1} failed: ${error.message}. Retrying...`);
                         if (attempt === maxRetries - 1) throw error;
@@ -315,7 +298,8 @@
             },
 
             /**
-             * Fetches clues and image for the current word using Gemini API.
+             * 💡 CRITICAL CHANGE 3: Rewritten to call the single proxy endpoint.
+             * Fetches clues and image for the current word using the Vercel proxy.
              */
             async fetchDataForCurrentWord() {
                 const currentData = this.gameData[this.currentWordIndex];
@@ -328,76 +312,24 @@
                 document.getElementById('hint-button').disabled = true;
 
                 try {
-                    // 1. Fetch Text Clues (Definition and Sentence)
-                    const cluePayload = {
-                        contents: [{ parts: [{ text: `Generate a very simple, single-sentence definition and a fun, helpful clue sentence using the word "${word}" for a young child. Also provide a simple, descriptive prompt for generating a clear, colorful image of this word. Return the response as a JSON object with keys: definition, sentenceClue, and imagePrompt.` }] }],
-                        systemInstruction: { parts: [{ text: "You are a helpful language tutor for children. Always respond strictly in the requested JSON format." }] },
-                        generationConfig: {
-                            responseMimeType: "application/json",
-                            responseSchema: {
-                                type: "OBJECT",
-                                properties: {
-                                    "definition": { "type": "STRING" },
-                                    "sentenceClue": { "type": "STRING" },
-                                    "imagePrompt": { "type": "STRING" }
-                                }
-                            }
-                        }
-                    };
-
-                    const clueResponse = await this.fetchWithRetry(this.geminiApiUrl, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(cluePayload)
+                    // Call the single, secure proxy endpoint with the word as a query parameter
+                    const data = await this.fetchWithRetry(`${this.geminiApiUrl}?word=${word}`, {
+                        method: 'GET',
+                        // CRUCIAL: No headers needed here, the proxy handles all authentication
                     });
 
-                    const clueText = clueResponse.candidates?.[0]?.content?.parts?.[0]?.text;
-                    let parsedClue = { definition: "Clue unavailable.", sentenceClue: "Clue unavailable.", imagePrompt: word };
-
-                    try {
-                        parsedClue = JSON.parse(clueText);
-                    } catch (e) {
-                        console.error("Failed to parse clue JSON:", e, "Raw response:", clueText);
-                    }
-
-                    // Update game data with text clues
-                    currentData.definition = parsedClue.definition;
-                    currentData.clue = parsedClue.sentenceClue;
-                    currentData.imagePrompt = parsedClue.imagePrompt;
-
-
-                    // 2. Fetch Image (using Imagen-3.0-generate-002)
-                    const imagePayload = {
-                        instances: [{
-                            prompt: `Simple, colorful, illustration for children of a clear representation of: ${parsedClue.imagePrompt}`,
-                            aspectRatio: "1:1"
-                        }],
-                        parameters: { "sampleCount": 1 }
-                    };
-
-                    const imageResponse = await this.fetchWithRetry(this.imagenApiUrl, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(imagePayload)
-                    });
-
-                    const base64Data = imageResponse.predictions?.[0]?.bytesBase64Encoded;
-
-                    if (base64Data) {
-                        currentData.imageUrl = `data:image/png;base64,${base64Data}`;
-                    } else {
-                        console.error("Image generation failed or returned no data.");
-                        currentData.imageUrl = `https://placehold.co/600x400/06B6D4/FFFFFF?text=Picture+Clue+Not+Available`;
-                    }
-
+                    // The proxy returns the combined data: definition, sentenceClue, and imageUrl
+                    currentData.definition = data.definition;
+                    currentData.clue = data.sentenceClue;
+                    currentData.imageUrl = data.imageUrl; // This is the base64 Data URL
                     currentData.loading = false;
-
+                    
                 } catch (error) {
-                    console.error("Error fetching data from APIs:", error);
+                    console.error("Error fetching data from secure proxy:", error);
                     currentData.loading = false;
-                    currentData.definition = "Oh no, definition failed to load.";
-                    currentData.clue = "Oh no, sentence clue failed to load.";
-                    currentData.imageUrl = `https://placehold.co/600x400/B91C1C/FFFFFF?text=API+Error`;
+                    currentData.definition = "Oh no, definition failed to load. Check Vercel logs!";
+                    currentData.clue = "Oh no, sentence clue failed to load. Check Vercel logs!";
+                    currentData.imageUrl = `https://placehold.co/600x400/B91C1C/FFFFFF?text=API+Proxy+Error`;
                 }
 
                 // Hide loading state
@@ -425,7 +357,7 @@
 
                 // Render the scrambled word and hint display
                 const display = document.getElementById('scrambled-word-display');
-                display.innerHTML = '';
+                display.innerHTML = ''; 
                 
                 // Show letters of the scrambled word, marked with hints if applicable
                 for (let i = 0; i < data.scrambled.length; i++) {
