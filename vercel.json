@@ -2,7 +2,9 @@
   "build": {
     "env": {
       "VERCEL_BUILD_DIR": "scramble" 
-    }
+    },
+    "ignoreBuildResult": "scramble",
+    "installCommand": "echo 'Skipping unnecessary npm install'"
   },
   "functions": {
     "api/generate.js": {
@@ -18,9 +20,5 @@
       "src": "/.*",
       "dest": "scramble/index.html"
     }
-  ],
-  "installCommand": "echo 'No dependencies needed for static client'",
-  "config": {
-    "ignore-build-results": ["scramble"]
-  }
+  ]
 }
