@@ -179,10 +179,16 @@
             // --- FIREBASE/API CONFIG ---
             db: null,
             auth: null,
-            apiKey: "AIzaSyAIEokfox_fO7HQn4TQs7ZSrueZCcv_Ye4", // API key remains empty for Canvas
-            geminiApiUrl: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent',
-            imagenApiUrl: 'https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict',
-
+            // --- CRITICAL CHANGES BELOW ---
+        
+            // 1. REMOVE the exposed API Key (it's now secured on Vercel)
+            // apiKey: "AIzaSyAIEokfox_fO7HQn4TQs7ZSrueZCcv_Ye4", 
+        
+            // 2. Set the single PROXY endpoint URL
+            geminiApiUrl: '/api/generate', // <--- NEW PROXY ENDPOINT
+            
+            // 3. Remove the Imagen URL (the proxy handles it)
+            imagenApiUrl: '',
             // --- GAME STATE ---
             words: [],          // Array of original words from input
             gameData: [],       // Array of objects holding word data, hints, etc.
