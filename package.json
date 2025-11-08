@@ -1,11 +1,12 @@
 {
-  "name": "games",
-  "version": "1.0.0",
-  "private": true,
-  "scripts": {
-    "start": "node api/generate.js"
-  },
-  "dependencies": {
-    "express": "^4.19.0"
-  }
+  "version": 2,
+  "builds": [
+    { "src": "api/**/*.js", "use": "@vercel/node" },
+    { "src": "scramble/**", "use": "@vercel/static" }
+  ],
+  "routes": [
+    { "src": "/api/(.*)", "dest": "/api/$1" },
+    { "src": "/scramble/(.*)", "dest": "/scramble/$1" },
+    { "src": "/", "dest": "/scramble/index.html" }
+  ]
 }
