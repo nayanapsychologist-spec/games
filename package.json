@@ -1,0 +1,12 @@
+{
+  "name": "word-scramble-game",
+  "version": "1.0.0",
+  "description": "Word Scramble Game using Gemini and Imagen via Vercel Proxy",
+  "main": "api/generate.js",
+  "scripts": {
+    "start": "echo 'Run on Vercel'"
+  },
+  "dependencies": {
+    "@google/genai": "^0.1.0"
+  }
+}
