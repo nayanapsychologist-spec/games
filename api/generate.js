@@ -1,93 +1,96 @@
-// api/generate.js - This code runs securely on the Vercel server.
+// api/generate.js - Vercel Serverless Function (Node.js)
+import { GoogleGenerativeAI } from '@google/genai';
+import { GoogleGenAI } from '@google/genai/server'; // Use the server import for the API Key access
 
-// Vercel's Node.js environment requires a dynamic import for 'node-fetch'
-// unless configured otherwise, but we'll stick to a common syntax pattern.
-import fetch from 'node-fetch';
+// The API key is securely accessed from Vercel Environment Variables
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
-// IMPORTANT: These variables will be populated securely from
-// the Environment Variables you set in your Vercel project dashboard.
-const GEMINI_API_URL = process.env.GEMINI_API_URL;
-const IMAGEN_API_URL = process.env.IMAGEN_API_URL;
-const API_KEY = process.env.GOOGLE_API_KEY; 
+if (!GEMINI_API_KEY) {
+  throw new Error("GEMINI_API_KEY environment variable is not set.");
+}
 
-// The 'handler' function is the entry point for Vercel's Serverless Function.
-export default async function handler(req, res) {
-    // 1. Get the 'word' parameter from the frontend request (e.g., /api/generate?word=LIGHT)
-    const word = req.query.word ? req.query.word.toUpperCase() : null;
+// Initialize the GoogleGenAI client (for Gemini text generation)
+const ai = new GoogleGenerativeAI(GEMINI_API_KEY);
 
-    if (!word) {
-        return res.status(400).json({ error: "Missing 'word' parameter in the request URL." });
-    }
+// Initialize the GoogleGenAI client for Imagen (image generation)
+const imageAi = new GoogleGenAI(GEMINI_API_KEY);
+
+/**
+ * Vercel Serverless Function to securely handle API calls to Gemini and Imagen.
+ * The client-side code calls this endpoint, keeping the API key secret.
+ */
+export default async function handler(request, response) {
+  // 1. Get the word from the client's query string (e.g., /api/generate?word=LIGHT)
+  const word = request.query.word;
+
+  if (!word) {
+    return response.status(400).json({ error: 'Missing word parameter.' });
+  }
+  
+  const originalWord = word.toUpperCase();
+
+  try {
+    // --- Step A: Generate Clues (Definition and Sentence) using Gemini ---
+    const prompt = `For the word "${originalWord}", provide a concise definition and a sample sentence clue. Format the response as a single, valid JSON object with the keys "definition" and "sentenceClue". Do not include any text, headers, or markdown outside of the JSON object.`;
+
+    const geminiResponse = await ai.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: prompt,
+        config: {
+          responseMimeType: 'application/json',
+          responseSchema: {
+            type: 'object',
+            properties: {
+              definition: {
+                type: 'string',
+                description: 'A concise, easy-to-understand definition of the word.',
+              },
+              sentenceClue: {
+                type: 'string',
+                description: 'A simple sentence using the word as a clue.',
+              },
+            },
+            required: ['definition', 'sentenceClue'],
+          },
+        },
+      });
+
+    // Parse the JSON response
+    const clueData = JSON.parse(geminiResponse.text.trim());
     
-    // Set standard headers, including the secret API key from the environment.
-    const headers = {
-        'Content-Type': 'application/json',
-        'X-Goog-Api-Key': AIzaSyAIEokfox_fO7HQn4TQs7ZSrueZCcv_Ye4, // The key is safely used on the server side
-    };
+    // --- Step B: Generate Image using Imagen ---
+    const imagePrompt = `A simple, colorful, educational illustration of the word: ${originalWord}`;
+    
+    const imageResponse = await imageAi.models.generateImages({
+      model: 'imagen-3.0-generate-002', 
+      prompt: imagePrompt,
+      config: {
+        numberOfImages: 1,
+        outputMimeType: 'image/jpeg',
+        aspectRatio: '1:1', // Square image is often good for games
+        // Higher quality can be slower/costlier
+        // quality: 'standard', 
+      },
+    });
 
-    try {
-        // --- A. Fetch Text Clues (Definition, Sentence, and Image Prompt) using Gemini ---
-        const cluePayload = {
-            contents: [{ parts: [{ text: `Generate a very simple, single-sentence definition and a fun, helpful clue sentence using the word "${word}" for a young child. Also provide a simple, descriptive prompt for generating a clear, colorful illustration of this word. Return the response strictly as a JSON object with keys: definition, sentenceClue, and imagePrompt.` }] }],
-            systemInstruction: { parts: [{ text: "You are a helpful language tutor for children. Do not add any extra text or markdown outside of the requested JSON object." }] },
-            generationConfig: {
-                // Instruct Gemini to return only a valid JSON object
-                responseMimeType: "application/json",
-                responseSchema: {
-                    type: "OBJECT",
-                    properties: {
-                        "definition": { "type": "STRING" },
-                        "sentenceClue": { "type": "STRING" },
-                        "imagePrompt": { "type": "STRING" }
-                    }
-                }
-            }
-        };
+    // Extract the base64 image data
+    const imageBase64 = imageResponse.generatedImages[0].image.imageBytes;
+    const imageUrl = `data:image/jpeg;base64,${imageBase64}`;
 
-        const clueResponse = await fetch(GEMINI_API_URL, {
-            method: 'POST',
-            headers: headers,
-            body: JSON.stringify(cluePayload)
-        }).then(r => r.json());
+    // --- Step C: Send combined response back to the client ---
+    response.status(200).json({
+      originalWord: originalWord,
+      definition: clueData.definition,
+      sentenceClue: clueData.sentenceClue,
+      imageUrl: imageUrl, // Base64 data URL
+    });
 
-        const clueText = clueResponse.candidates?.[0]?.content?.parts?.[0]?.text;
-        // Safely parse the JSON output from Gemini
-        let parsedClue = JSON.parse(clueText);
-
-
-        // --- B. Fetch Image (using Imagen) ---
-        // Augment the prompt provided by Gemini for better visual quality
-        const imagePrompt = `Simple, colorful, illustration for children, clear representation of: ${parsedClue.imagePrompt}`;
-        
-        const imagePayload = {
-            instances: [{ prompt: imagePrompt, aspectRatio: "1:1" }],
-            parameters: { "sampleCount": 1 }
-        };
-
-        const imageResponse = await fetch(IMAGEN_API_URL, {
-            method: 'POST',
-            headers: headers,
-            body: JSON.stringify(imagePayload)
-        }).then(r => r.json());
-
-        // Imagen returns a base64 encoded string of the image data
-        const base64Data = imageResponse.predictions?.[0]?.bytesBase64Encoded;
-        let imageUrl = `https://placehold.co/600x400/D97706/FFFFFF?text=Image+Failed`;
-
-        if (base64Data) {
-            // Create a Data URL that the frontend can use directly in an <img> tag
-            imageUrl = `data:image/png;base64,${base64Data}`;
-        }
-        
-        // --- C. Send Combined Data Back to Frontend ---
-        res.status(200).json({
-            definition: parsedClue.definition,
-            sentenceClue: parsedClue.sentenceClue,
-            imageUrl: imageUrl, // Base64 Data URL for the image
-        });
-
-    } catch (error) {
-        console.error("API proxy error:", error);
-        res.status(500).json({ error: "Failed to fetch data from Google APIs. Check server logs." });
-    }
+  } catch (error) {
+    console.error('API Processing Error:', error);
+    // Return a clear error message and status
+    response.status(500).json({ 
+      error: 'Failed to generate word data or image.', 
+      details: error.message 
+    });
+  }
 }
