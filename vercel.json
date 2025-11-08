@@ -1,0 +1,24 @@
+{
+  "build": {
+    "src": "scramble/index.html",
+    "use": "@vercel/static-build",
+    "config": {
+      "distDir": "word-scramble"
+    }
+  },
+  "functions": {
+    "api/generate.js": {
+      "runtime": "nodejs20.x"
+    }
+  },
+  "routes": [
+    {
+      "src": "/api/generate",
+      "dest": "/api/generate.js"
+    },
+    {
+      "src": "/.*",
+      "dest": "index.html"
+    }
+  ]
+}
