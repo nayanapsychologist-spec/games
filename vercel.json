@@ -1,13 +1,12 @@
 {
-  "rewrites": [
-    {
-      "source": "/",
-      "destination": "/index.html"
-    }
+  "version": 2,
+  "builds": [
+    { "src": "api/**/*.js", "use": "@vercel/node" },
+    { "src": "scramble/**", "use": "@vercel/static" }
   ],
-  "functions": {
-    "api/generate.js": {
-      "runtime": "node"
-    }
-  }
+  "routes": [
+    { "src": "/api/(.*)", "dest": "/api/$1" },
+    { "src": "/scramble/(.*)", "dest": "/scramble/$1" },
+    { "src": "/", "dest": "/scramble/index.html" }
+  ]
 }
